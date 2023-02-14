@@ -91,8 +91,10 @@ def plot_mean_FWHM_Hannah(filename, targets):
 
 
 
+def plot_energy_in_target(E0, dp, filtername):
 
-
+    st = ci.Stack('stackedTarget_193mPt.csv', E0=E0, N=100000, particle='p', dp = dp)
+    st.plot(filter_name = filtername)
 
 
 
@@ -102,9 +104,11 @@ if __name__ == '__main__':
     targets = ['Ir0' + str(i) for i in range(1,10)]
     targets.append('Ir10')
     filename = f'hannahs_stack{E0:.3f}MeV{dp:.3f}'
+    filtername = 'Ir'
 
-    energy_in_target_Hannah(E0, dp)
-    plot_mean_FWHM_Hannah(filename, targets)
+    # energy_in_target_Hannah(E0, dp)
+    # plot_mean_FWHM_Hannah(filename, targets)
+    plot_energy_in_target(E0, dp, filtername)
     
 
 
