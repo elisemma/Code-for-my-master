@@ -40,7 +40,7 @@ def generate_xs_lists(reaction_list):
 
 def interpol_xs(xs_list, E_xs_list):
     cs = CubicSpline(E_xs_list, xs_list)
-    
+
     return cs
 
 
@@ -52,18 +52,35 @@ if __name__=='__main__': #______________________________________________________
 
     E_iaea, xs_iaea, xs_unc_iaea = generate_xs_lists(reaction_list)
 
+    E = np.linspace(10,50,100000)
+
     xs_interpol_iaea_Ni_61Cu = interpol_xs(xs_iaea[0], E_iaea[0])
     xs_interpol_iaea_Ni_56Co = interpol_xs(xs_iaea[1], E_iaea[1])
+    xs_interpol_iaea_Ni_58Co = interpol_xs(xs_iaea[2], E_iaea[2])
+    xs_interpol_iaea_Cu_62Zn = interpol_xs(xs_iaea[3], E_iaea[3])
+    xs_interpol_iaea_Cu_63Zn = interpol_xs(xs_iaea[4], E_iaea[4])
+    xs_interpol_iaea_Cu_65Zn = interpol_xs(xs_iaea[5], E_iaea[5])
 
-    E = np.linspace(5,50,100000)
+    ratio_Ni_61Cu_div_Ni_56Co = xs_interpol_iaea_Ni_61Cu(E)/xs_interpol_iaea_Ni_56Co(E)
+    ratio_Ni_61Cu_div_Ni_58Co = xs_interpol_iaea_Ni_61Cu(E)/xs_interpol_iaea_Ni_58Co(E)
+    ratio_Ni_58Co_div_Ni_56Co = xs_interpol_iaea_Ni_58Co(E)/xs_interpol_iaea_Ni_56Co(E)
+    ratio_Cu_62Zn_div_Cu_63Zn = xs_interpol_iaea_Cu_62Zn(E)/xs_interpol_iaea_Cu_63Zn(E)
+    ratio_Cu_62Zn_div_Cu_65Zn = xs_interpol_iaea_Cu_62Zn(E)/xs_interpol_iaea_Cu_65Zn(E)
+    ratio_Cu_65Zn_div_Cu_63Zn = xs_interpol_iaea_Cu_65Zn(E)/xs_interpol_iaea_Cu_63Zn(E)
 
-    ratio = xs_interpol_iaea_Ni_61Cu(E)/xs_interpol_iaea_Ni_56Co(E)
 
-
-    plt.plot(E, ratio, color = 'hotpink', label = 'natNi_61Cu/natNi_56Co')
-    # plt.plot(E, xs_interpol_iaea_Ni_61Cu(E), color = 'skyblue', label = 'xs for natNi_61Cu')
-    # plt.plot(E, xs_interpol_iaea_Ni_56Co(E), color = 'violet', label = 'xs for natNi_56Co')
-    # plt.xlabel('Energy (MeV)')
+    plt.subplot(121)
+    plt.plot(E, ratio_Ni_61Cu_div_Ni_56Co, color = 'lightskyblue', label = 'natNi_61Cu/natNi_56Co')
+    plt.plot(E, ratio_Ni_61Cu_div_Ni_58Co, color = 'deepskyblue', label = 'natNi_61Cu/natNi_58Co')
+    plt.plot(E, ratio_Ni_58Co_div_Ni_56Co, color = 'cornflowerblue', label = 'natNi_58Co/natNi_56Co')
+    plt.xlabel('Energy (MeV)')
+    plt.ylabel('Ratio')
+    plt.legend()
+    plt.subplot(122)
+    plt.plot(E, ratio_Cu_62Zn_div_Cu_63Zn, color = 'lightpink', label = 'natCu_62Zn/natCu_63Zn')
+    plt.plot(E, ratio_Cu_62Zn_div_Cu_65Zn, color = 'hotpink', label = 'natCu_62Zn/natCu_65Zn')
+    plt.plot(E, ratio_Cu_65Zn_div_Cu_63Zn, color = 'palevioletred', label = 'natCu_65Zn/natCu_63Zn')
+    plt.xlabel('Energy (MeV)')
     plt.ylabel('Ratio')
     plt.legend()
     plt.show()
