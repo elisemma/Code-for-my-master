@@ -434,11 +434,11 @@ if __name__=='__main__': #______________________________________________________
 
     #Running functions: ______________________________________________________________________________________________________________________________________________________
     #Running the functions for the 25MeV stack:
-    # ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV = ratios_and_energies(A0_Ti_25MeV, t_half_Ti, t_irr_25MeV, A0_unc_Ti_25MeV, t_half_unc_Ti, t_irr_unc_25MeV, E, ratios_iaea_Ti)
+    ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV = ratios_and_energies(A0_Ti_25MeV, t_half_Ti, t_irr_25MeV, A0_unc_Ti_25MeV, t_half_unc_Ti, t_irr_unc_25MeV, E, ratios_iaea_Ti)
 
-    # ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV = ratios_and_energies(A0_Cu_25MeV, t_half_Cu, t_irr_25MeV, A0_unc_Cu_25MeV, t_half_unc_Cu, t_irr_unc_25MeV, E, ratios_iaea_Cu)
+    ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV = ratios_and_energies(A0_Cu_25MeV, t_half_Cu, t_irr_25MeV, A0_unc_Cu_25MeV, t_half_unc_Cu, t_irr_unc_25MeV, E, ratios_iaea_Cu)
 
-    # print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foils_paper_25MeV, E_Ti_foils_unc_paper_25MeV, E_Cu_foils_paper_25MeV, E_Cu_foils_unc_paper_25MeV, ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV, ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV, colors, 25)
+    print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foils_paper_25MeV, E_Ti_foils_unc_paper_25MeV, E_Cu_foils_paper_25MeV, E_Cu_foils_unc_paper_25MeV, ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV, ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV, colors, 25)
 
 
 
