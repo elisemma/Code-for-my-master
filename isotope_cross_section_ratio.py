@@ -172,19 +172,19 @@ def exp_xs_ratio_from_A0_w_unc(A0, A0_prime, t_half, t_half_prime, t_irr, A0_unc
 def foil_energy_w_unc(E_array, iaea_ratio, exp_ratio, exp_ratio_unc): 
 #E_array and iaea_ratio are arrays, while exp_ratio and exp_ratio_unc are numbers
     
-
     #Finding the energy:______________________________________________________________
     exp_ratio_array = np.zeros(len(iaea_ratio))
     exp_ratio_array.fill(exp_ratio)
     dE = E_array[1]-E_array[0]
     numb_of_indices_5MeV = np.abs(5/dE)
-    dratio = 1e-5
-    indices = np.nonzero(np.abs(iaea_ratio - exp_ratio_array)<dratio) #indices of all the possible enrgies
+    # dratio = 1e-5
+    indices = np.nonzero(np.abs(iaea_ratio - exp_ratio_array)<exp_ratio_unc) #indices of all the possible enrgies
+    print(indices)
     possible_energies_w_duplicates = E_array[indices] #array with all the possible enrgies
     iaea_ratio_for_possible_energies = iaea_ratio[indices] #array with corresponding iaea ratio for all the possible enrgies
     # print('Energies with duplicates: ', E_array[indices])
 
-    minimumEnergyDifferenceForNewSolution = 0.1 #[MeV]
+    minimumEnergyDifferenceForNewSolution = 5 #[MeV]
     ratioDifference = [np.abs(iaea_ratio_for_possible_energies[0]-exp_ratio)]
     ratio_solutions = []
     energy_solutions = []
@@ -214,7 +214,6 @@ def foil_energy_w_unc(E_array, iaea_ratio, exp_ratio, exp_ratio_unc):
                 ratio_solutions[-1]=iaea_ratio_for_possible_energies[i]
                 energy_solutions[-1]=possible_energies_w_duplicates[i]
 
-
     solution_indices = []
     for energy in energy_solutions:
         index = np.argmin(np.abs(E_array-energy))
@@ -233,14 +232,23 @@ def foil_energy_w_unc(E_array, iaea_ratio, exp_ratio, exp_ratio_unc):
             index_p_5 = -1
 
         if (iaea_ratio[index]<iaea_ratio[index+1]):
-            index_m = np.argmin(np.abs(iaea_ratio[index_m_5:index]-(exp_ratio-exp_ratio_unc)))
-            index_p = np.argmin(np.abs(iaea_ratio[index:index_p_5]-(exp_ratio+exp_ratio_unc)))
-            index_minus = np.argmin(np.abs(iaea_ratio-iaea_ratio[index_m_5:index][index_m]))
-            index_plus = np.argmin(np.abs(iaea_ratio-iaea_ratio[index:index_p_5][index_p]))
+            if (iaea_ratio[index_m_5]>iaea_ratio[index]): #Hvis bunnpunkt
+                index_m = np.argmin(np.abs(iaea_ratio[index_m_5:index]-(exp_ratio+exp_ratio_unc)))
+                index_p = np.argmin(np.abs(iaea_ratio[index:index_p_5]-(exp_ratio+exp_ratio_unc)))
+                index_minus = np.argmin(np.abs(iaea_ratio-iaea_ratio[index_m_5:index][index_m]))
+                index_plus = np.argmin(np.abs(iaea_ratio-iaea_ratio[index:index_p_5][index_p]))
 
+                energy_unc_minus.append(np.abs(E_array[index]-E_array[index_minus]))
+                energy_unc_plus.append(np.abs(E_array[index_plus]-E_array[index])) 
 
-            energy_unc_minus.append(np.abs(E_array[index]-E_array[index_minus]))
-            energy_unc_plus.append(np.abs(E_array[index_plus]-E_array[index]))            
+            else:    
+                index_m = np.argmin(np.abs(iaea_ratio[index_m_5:index]-(exp_ratio-exp_ratio_unc)))
+                index_p = np.argmin(np.abs(iaea_ratio[index:index_p_5]-(exp_ratio+exp_ratio_unc)))
+                index_minus = np.argmin(np.abs(iaea_ratio-iaea_ratio[index_m_5:index][index_m]))
+                index_plus = np.argmin(np.abs(iaea_ratio-iaea_ratio[index:index_p_5][index_p]))
+
+                energy_unc_minus.append(np.abs(E_array[index]-E_array[index_minus]))
+                energy_unc_plus.append(np.abs(E_array[index_plus]-E_array[index]))            
 
         elif (iaea_ratio[index]>iaea_ratio[index+1]):
             
@@ -283,7 +291,7 @@ def ratios_and_energies(A0, t_half, t_irr, A0_unc, t_half_unc, t_irr_unc, E_arra
   
 
 
-def print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foils_paper, E_Ti_foils_unc_paper, E_Cu_foils_paper, E_Cu_foils_unc_paper, ratios_Ti, ratios_unc_Ti, E_Ti_foils, E_Ti_foils_unc_plus, E_Ti_foils_unc_minus, ratios_Cu, ratios_unc_Cu, E_Cu_foils, E_Cu_foils_unc_plus, E_Cu_foils_unc_minus, colors):
+def print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foils_paper, E_Ti_foils_unc_paper, E_Cu_foils_paper, E_Cu_foils_unc_paper, ratios_Ti, ratios_unc_Ti, E_Ti_foils, E_Ti_foils_unc_plus, E_Ti_foils_unc_minus, ratios_Cu, ratios_unc_Cu, E_Cu_foils, E_Cu_foils_unc_plus, E_Cu_foils_unc_minus, colors, MeV):
 
     #Printing the energies
     for i in range(len(E_Ti_foils)):
@@ -305,11 +313,11 @@ def print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foil
         print(' ')
 
 
-    #Plotting:
+    #Plot energies and ratios:
     #Starting with the Ti foils:
     plt.subplot(121)
     #plotter IAEA ratio:
-    plt.plot(E, ratios_iaea_Ti , label = 'IAEA', color = 'hotpink')
+    plt.plot(E, ratios_iaea_Ti , label = 'IAEA', color = 'black')
     #plotter exp ratio and energy with unc:
     for i in range(len(E_Ti_foils)):
         #Ratio:
@@ -321,7 +329,7 @@ def print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foil
             plt.plot([E_Ti_foils[i][j], E_Ti_foils[i][j]], [0,4], color = colors[i])
             plt.plot([E_Ti_foils[i][j]+E_Ti_foils_unc_plus[i][j], E_Ti_foils[i][j]+E_Ti_foils_unc_plus[i][j]], [0,4], color = colors[i], linestyle = 'dashed')
             plt.plot([E_Ti_foils[i][j]-E_Ti_foils_unc_minus[i][j], E_Ti_foils[i][j]-E_Ti_foils_unc_minus[i][j]], [0,4], color = colors[i], linestyle = 'dashed')
-    plt.title('natTi(p,x)46Sc/natTi(p,x)48V')
+    plt.title(f'natTi(p,x)46Sc/natTi(p,x)48V in the {MeV}MeV stack')
     plt.xlabel('Energy (MeV)')
     plt.ylabel('Ratio')
     plt.legend()
@@ -329,7 +337,7 @@ def print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foil
     #Cu foils:
     plt.subplot(122)
     #plotter IAEA ratio:
-    plt.plot(E, ratios_iaea_Cu , label = 'IAEA', color = 'hotpink')
+    plt.plot(E, ratios_iaea_Cu , label = 'IAEA', color = 'black')
     #plotter exp ratio and energy with unc:
     for i in range(len(E_Cu_foils)):
         #Ratio:
@@ -341,7 +349,7 @@ def print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foil
             plt.plot([E_Cu_foils[i][j], E_Cu_foils[i][j]], [0,4], color = colors[i])
             plt.plot([E_Cu_foils[i][j]+E_Cu_foils_unc_plus[i][j], E_Cu_foils[i][j]+E_Cu_foils_unc_plus[i][j]], [0,4], color = colors[i], linestyle = 'dashed')
             plt.plot([E_Cu_foils[i][j]-E_Cu_foils_unc_minus[i][j], E_Cu_foils[i][j]-E_Cu_foils_unc_minus[i][j]], [0,4], color = colors[i], linestyle = 'dashed')
-    plt.title('natCu(p,x)62Zn/natCu(p,x)63Zn')
+    plt.title(f'natCu(p,x)62Zn/natCu(p,x)63Zn in the {MeV}MeV stack')
     plt.xlabel('Energy (MeV)')
     plt.ylabel('Ratio')
     plt.legend()
@@ -355,11 +363,18 @@ def print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foil
 
 if __name__=='__main__': #______________________________________________________________________________________________________
 
-    colors = ['skyblue', 'gold', 'orchid', 'seagreen', 'plum', 'deepskyblue', 'khaki']
+    colors = ['hotpink', 'orange', 'gold', 'limegreen', 'deepskyblue', 'orchid']
     
     #The same for both stacks:
     reaction_list = ['natTi_46Sc', 'natTi_48V', 'natCu_62Zn', 'natCu_63Zn']
     beam = 'p'
+    #Ti half lifes:
+    t_half_Ti = np.array([83.79*60*60*24, 15.9735*60*60*24]) #[s]
+    t_half_unc_Ti = np.array([0.04*60*60*24, 0.0025*60*60*24]) #[s]
+    #Cu half lives:
+    t_half_Cu = np.array([9.186*60*60, 38.47*60]) #[s]
+    t_half_unc_Cu = np.array([0.013*60*60, 0.05*60]) #[s]
+
 
     #IAEA ratios
     E_iaea, xs_iaea, xs_unc_iaea = generate_xs_lists(beam, reaction_list)
@@ -372,22 +387,17 @@ if __name__=='__main__': #______________________________________________________
     ratios_iaea_Cu = xs_interpol_iaea_Cu_62Zn(E)/xs_interpol_iaea_Cu_63Zn(E)
 
 
-    # 25MeV stack: ___________________________________________________________________________________________________________________________________________________________
+    # 25MeV stack info: ______________________________________________________________________________________________________________________________________________________
     t_irr_25MeV = 20*60 #[s]
     t_irr_unc_25MeV = 5 #[s]
 
     #Ti lists
     A0_Ti_25MeV = [70.5041, 3080.23, 49.9634, 5085.61]
     A0_unc_Ti_25MeV = [1.6824, 1.99114, 1.031, 119.1]
-    t_half_Ti = np.array([83.79*60*60*24, 15.9735*60*60*24]) #[s]
-    t_half_unc_Ti = np.array([0.04*60*60*24, 0.0025*60*60*24]) #[s]
 
     #Cu lists
     A0_Cu_25MeV = [161744, 698847, 116562, 1.90e+006, 34046.1, 5.48e+006]
     A0_unc_Cu_25MeV = [1805, 2.30e+004, 1994, 5.74e+004, 433.1, 1.38e+005]
-    t_half_Cu = np.array([9.186*60*60, 38.47*60]) #[s]
-    t_half_unc_Cu = np.array([0.013*60*60, 0.05*60]) #[s]
-
 
     #Lists of energies and unc from the paper:
     E_Ti_foils_paper_25MeV = [22.29, 18.98]
@@ -396,21 +406,48 @@ if __name__=='__main__': #______________________________________________________
     E_Cu_foils_unc_paper_25MeV = [0.33, 0.38, 0.44]
 
 
-    
+    # 55MeV stack info: ______________________________________________________________________________________________________________________________________________________
+    t_irr_55MeV = 10*60 #[s]
+    t_irr_unc_55MeV = 5 #[s]
 
-    ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV = ratios_and_energies(A0_Ti_25MeV, t_half_Ti, t_irr_25MeV, A0_unc_Ti_25MeV, t_half_unc_Ti, t_irr_unc_25MeV, E, ratios_iaea_Ti)
-
-    ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV = ratios_and_energies(A0_Cu_25MeV, t_half_Cu, t_irr_25MeV, A0_unc_Cu_25MeV, t_half_unc_Cu, t_irr_unc_25MeV, E, ratios_iaea_Cu)
-
-
-
-    print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foils_paper_25MeV, E_Ti_foils_unc_paper_25MeV, E_Cu_foils_paper_25MeV, E_Cu_foils_unc_paper_25MeV, ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV, ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV, colors)
+    #Ti lists
+    A0_Ti_55MeV = [334.88, 486.933, 371.493, 586.622, 315.986, 769.791, 191.424, 908.55, 73.5383, 1020.04, 40.3647, 1459.17]
+    A0_unc_Ti_55MeV = [4.68, 14.12, 2.191, 10.63, 2.189, 37.06, 1.9454, 33.95, 1.9454, 33.95, 1.9869, 15.2, 1.228, 65.76]
 
 
+    #Cu lists
+    A0_Cu_55MeV = [19881.3, 373546, 21026.4, 536831, 22856, 1.02E+006, 33332.4, 1.24E+006, 73083.4, 9.35E+005, 131635, 552302, 45045.2, 3.05E+006]
+    A0_unc_Cu_55MeV = [409.1, 1.70E+004, 333.5, 1.10E+004, 561.8, 3.72E+004, 966.5, 4.37E+004, 1903, 3.39E+004, 2135, 1.91E+004, 905.3, 1.21E+005]
+    A0_Cu_55MeV = [19881.3, 373546, 21026.4, 536831, 22856, 1.02E+006, 33332.4, 1.24E+006, 73083.4, 9.35E+005,     45045.2, 3.05E+006]
+    A0_unc_Cu_55MeV = [409.1, 1.70E+004, 333.5, 1.10E+004, 561.8, 3.72E+004, 966.5, 4.37E+004, 1903, 3.39E+004,     905.3, 1.21E+005]      
+
+    #Lists of energies and unc from the paper:
+    E_Ti_foils_paper_55MeV = [53.31, 46.48, 38.76, 34.44, 29.63, 24.1]
+    E_Ti_foils_unc_paper_55MeV = [0.61, 0.68, 0.78, 0.86, 0.96, 1.1]
+    E_Cu_foils_paper_55MeV = [53.04, 46.18, 38.42, 34.06, 29.21, 23.6, 16.6]
+    E_Cu_foils_unc_paper_55MeV = [0.61, 0.68, 0.79, 0.86, 0.97, 1.2, 1.5]
+    E_Cu_foils_paper_55MeV = [53.04, 46.18, 38.42, 34.06, 29.21, 16.6]
+    E_Cu_foils_unc_paper_55MeV = [0.61, 0.68, 0.79, 0.86, 0.97, 1.5]
+   
+   
+
+
+    #Running functions: ______________________________________________________________________________________________________________________________________________________
+    #Running the functions for the 25MeV stack:
+    # ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV = ratios_and_energies(A0_Ti_25MeV, t_half_Ti, t_irr_25MeV, A0_unc_Ti_25MeV, t_half_unc_Ti, t_irr_unc_25MeV, E, ratios_iaea_Ti)
+
+    # ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV = ratios_and_energies(A0_Cu_25MeV, t_half_Cu, t_irr_25MeV, A0_unc_Cu_25MeV, t_half_unc_Cu, t_irr_unc_25MeV, E, ratios_iaea_Cu)
+
+    # print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foils_paper_25MeV, E_Ti_foils_unc_paper_25MeV, E_Cu_foils_paper_25MeV, E_Cu_foils_unc_paper_25MeV, ratios_Ti_25MeV, ratios_unc_Ti_25MeV, E_Ti_foils_25MeV, E_Ti_foils_unc_plus_25MeV, E_Ti_foils_unc_minus_25MeV, ratios_Cu_25MeV, ratios_unc_Cu_25MeV, E_Cu_foils_25MeV, E_Cu_foils_unc_plus_25MeV, E_Cu_foils_unc_minus_25MeV, colors, 25)
 
 
 
+    #Running the functions for the 55MeV stack:
+    ratios_Ti_55MeV, ratios_unc_Ti_55MeV, E_Ti_foils_55MeV, E_Ti_foils_unc_plus_55MeV, E_Ti_foils_unc_minus_55MeV = ratios_and_energies(A0_Ti_55MeV, t_half_Ti, t_irr_55MeV, A0_unc_Ti_55MeV, t_half_unc_Ti, t_irr_unc_55MeV, E, ratios_iaea_Ti)
+    print('hey')
+    ratios_Cu_55MeV, ratios_unc_Cu_55MeV, E_Cu_foils_55MeV, E_Cu_foils_unc_plus_55MeV, E_Cu_foils_unc_minus_55MeV = ratios_and_energies(A0_Cu_55MeV, t_half_Cu, t_irr_55MeV, A0_unc_Cu_55MeV, t_half_unc_Cu, t_irr_unc_55MeV, E, ratios_iaea_Cu)
 
+    print_and_plot_energies_and_ratios(ratios_iaea_Ti, ratios_iaea_Cu, E_Ti_foils_paper_55MeV, E_Ti_foils_unc_paper_55MeV, E_Cu_foils_paper_55MeV, E_Cu_foils_unc_paper_55MeV, ratios_Ti_55MeV, ratios_unc_Ti_55MeV, E_Ti_foils_55MeV, E_Ti_foils_unc_plus_55MeV, E_Ti_foils_unc_minus_55MeV, ratios_Cu_55MeV, ratios_unc_Cu_55MeV, E_Cu_foils_55MeV, E_Cu_foils_unc_plus_55MeV, E_Cu_foils_unc_minus_55MeV, colors, 55)
 
 
 
