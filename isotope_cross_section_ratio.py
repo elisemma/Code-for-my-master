@@ -184,7 +184,7 @@ def foil_energy_w_unc(E_array, iaea_ratio, exp_ratio, exp_ratio_unc):
     iaea_ratio_for_possible_energies = iaea_ratio[indices] #array with corresponding iaea ratio for all the possible enrgies
     # print('Energies with duplicates: ', E_array[indices])
 
-    minimumEnergyDifferenceForNewSolution = 5 #[MeV]
+    minimumEnergyDifferenceForNewSolution = 5 #[MeV] #This can be sett to 0.1 for the 25MeV stack
     ratioDifference = [np.abs(iaea_ratio_for_possible_energies[0]-exp_ratio)]
     ratio_solutions = []
     energy_solutions = []
