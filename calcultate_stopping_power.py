@@ -12,6 +12,8 @@ from scipy.interpolate import interp1d
 
 
 
+
+
 def make_energy_hist(E_mean, E_unc, foil, N_bins=200): 
 
     E_distr = np.random.normal(loc=E_mean, scale=E_unc, size=1000000)
@@ -50,8 +52,12 @@ def stopping_power_whole_stack(foil_list, rho_ds_list, E_mean_list, E_unc_list):
 
     stopping_powers_Ti_to_Cu = []
     mean_E_Ti_bins = []
+    mean_stopping_power_Ti_to_Cu = []
+    mean_E_Ti = []
     stopping_powers_Cu_to_Ti = []
     mean_E_Cu_bins = []
+    mean_stopping_power_Cu_to_Ti = []
+    mean_E_Cu = []
 
     for i in range(0, len(E_mean_list), 2): #Calculate all the stopping powers in the Ti foils (energy loss from Ti to Cu, no Fe in between)
         j = 2*i
@@ -62,9 +68,11 @@ def stopping_power_whole_stack(foil_list, rho_ds_list, E_mean_list, E_unc_list):
 
         stopping_powers_Ti_to_Cu.append(stopping_power)
         mean_E_Ti_bins.append(mean_E)
+        mean_stopping_power_Ti_to_Cu.append(np.mean(stopping_power))
+        mean_E_Ti.append(np.mean(mean_E))
 
 
-    for i, j in zip(range (1, len(E_mean_list)-1, 2), range(1, len(foil_list), 4)):
+    for i, j in zip(range (1, len(E_mean_list)-1, 2), range(1, len(foil_list), 4)): #Calculate the stopping power from Ti to Cu (Al and Fe in between the foils)
         rho_ds = np.sum(rho_ds_list[j:j+3]) #sum rho ds for Cu, Al and Fe
 
         hist1, bin_edges1 = make_energy_hist(E_mean_list[i], E_unc_list[i], foil_list[i])
@@ -73,8 +81,12 @@ def stopping_power_whole_stack(foil_list, rho_ds_list, E_mean_list, E_unc_list):
 
         stopping_powers_Cu_to_Ti.append(stopping_power)
         mean_E_Cu_bins.append(mean_E)
+        mean_stopping_power_Cu_to_Ti.append(np.mean(stopping_power))
+        mean_E_Cu.append(np.mean(mean_E))
     
-    return stopping_powers_Ti_to_Cu, mean_E_Ti_bins, stopping_powers_Cu_to_Ti, mean_E_Cu_bins
+    return stopping_powers_Ti_to_Cu, mean_E_Ti_bins, mean_stopping_power_Ti_to_Cu, mean_E_Ti, stopping_powers_Cu_to_Ti, mean_E_Cu_bins, mean_stopping_power_Cu_to_Ti, mean_E_Cu 
+
+
 
 
 
@@ -118,13 +130,14 @@ if __name__=='__main__':
     E_unc_list_55MeV = [0.61, 0.61, 0.6, 0.68, 0.49, 1.22, 0.22, 0.465, 0.195, 0.155] #[MeV]
 
 
-    stopping_powers_Ti_to_Cu, mean_E_Ti_bins, stopping_powers_Cu_to_Ti, mean_E_Cu_bins = stopping_power_whole_stack(foil_list_55MeV, rho_ds_list_55MeV, E_mean_list_55MeV, E_unc_list_55MeV)
+    stopping_powers_Ti_to_Cu, mean_E_Ti_bins, mean_stopping_power_Ti_to_Cu, mean_E_Ti, stopping_powers_Cu_to_Ti, mean_E_Cu_bins, mean_stopping_power_Cu_to_Ti, mean_E_Cu = stopping_power_whole_stack(foil_list_55MeV, rho_ds_list_55MeV, E_mean_list_55MeV, E_unc_list_55MeV)
 
     colors = ['hotpink', 'orange', 'gold', 'limegreen', 'deepskyblue', 'orchid']
 
     plt.subplot(1,2,1)
     for i, j in zip(range(len(stopping_powers_Ti_to_Cu)),range(0,len(foil_list_55MeV),4)):
         plt.plot(mean_E_Ti_bins[i], stopping_powers_Ti_to_Cu[i], label = f'{foil_list_55MeV[j]}', color = colors[i])
+    plt.plot(mean_E_Ti, mean_stopping_power_Ti_to_Cu, 'mo', label = r'mean -dE/$\rho$ds and E in each foil')
     plt.xlabel('E (MeV)')
     plt.ylabel(r'-dE/$\rho$ds (MeV cm$^2$ mg$^{-1}$)')
     plt.legend()
@@ -133,6 +146,7 @@ if __name__=='__main__':
     plt.subplot(1,2,2)
     for i, j in zip(range(len(stopping_powers_Cu_to_Ti)),range(1,len(foil_list_55MeV),4)):
         plt.plot(mean_E_Cu_bins[i], stopping_powers_Cu_to_Ti[i], label = f'{foil_list_55MeV[j]}', color = colors[i])
+    plt.plot(mean_E_Cu, mean_stopping_power_Cu_to_Ti, 'mo', label = r'mean -dE/$\rho$ds and E in each foil')
     plt.xlabel('E (MeV)')
     plt.ylabel(r'-dE/$\rho$ds (MeV cm$^2$ mg$^{-1}$)')
     plt.legend()
