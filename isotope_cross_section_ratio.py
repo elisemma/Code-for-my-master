@@ -183,7 +183,7 @@ def foil_energy_w_unc(E_array, iaea_ratio, exp_ratio, exp_ratio_unc):
     iaea_ratio_for_possible_energies = iaea_ratio[indices] #array with corresponding iaea ratio for all the possible enrgies
     # print('Energies with duplicates: ', E_array[indices])
 
-    minimumEnergyDifferenceForNewSolution = 5 #[MeV] #This can be sett to 0.1 for the 25MeV stack
+    minimumEnergyDifferenceForNewSolution = 5 #[MeV] #This can be sett to 0.5 for the 25MeV stack and 5 for the 55MeV stack
     ratioDifference = [np.abs(iaea_ratio_for_possible_energies[0]-exp_ratio)]
     ratio_solutions = []
     energy_solutions = []
@@ -436,7 +436,7 @@ if __name__=='__main__': #______________________________________________________
     reaction_list_fox = ['natTi_46Sc', 'natTi_48V', 'natCu_62Zn', 'natCu_63Zn']
     t_irr_fox = 3884 #[s]
     t_irr_unc_fox = 5 #[s]
-    beam_fox = 'd'
+    beam_fox = 'p'
 
     #Ti lists
     A0_Ti_fox = [3496.71, 4807.33, 3614.95, 5701.48, 3906.91, 5790.39, 4180.33, 6496.83, 3960.36, 6808.39, 4054.90, 6656.59, 1502.79, 2935.30, 3045.40, 8675.28, 2537.80, 
@@ -457,14 +457,14 @@ if __name__=='__main__': #______________________________________________________
 
 
     #IAEA ratios for Fox stack:
-    E_iaea_deuterons, xs_iaea_deuterons, xs_unc_iaea_deuterons = generate_xs_lists(beam_voyles, reaction_list_fox)
+    E_iaea_protons, xs_iaea_protons, xs_unc_iaea_protons = generate_xs_lists(beam_voyles, reaction_list_fox)
     E_fox = np.linspace(9,60, 1000000)
-    xs_interpol_iaea_Ti_46Sc_deuterons = interpol_xs_iaea(xs_iaea_deuterons[0], E_iaea_deuterons[0])
-    xs_interpol_iaea_Ti_48V_deuterons = interpol_xs_iaea(xs_iaea_deuterons[1], E_iaea_deuterons[1])
-    xs_interpol_iaea_Cu_62Zn_deuterons = interpol_xs_iaea(xs_iaea_deuterons[2], E_iaea_deuterons[2])
-    xs_interpol_iaea_Cu_63Zn_deuterons = interpol_xs_iaea(xs_iaea_deuterons[3], E_iaea_deuterons[3])
-    ratios_iaea_Ti_deuterons = xs_interpol_iaea_Ti_46Sc_deuterons(E_fox)/xs_interpol_iaea_Ti_48V_deuterons(E_fox)
-    ratios_iaea_Cu_deuterons = xs_interpol_iaea_Cu_62Zn_deuterons(E_fox)/xs_interpol_iaea_Cu_63Zn_deuterons(E_fox)
+    xs_interpol_iaea_Ti_46Sc_protons = interpol_xs_iaea(xs_iaea_protons[0], E_iaea_protons[0])
+    xs_interpol_iaea_Ti_48V_protons = interpol_xs_iaea(xs_iaea_protons[1], E_iaea_protons[1])
+    xs_interpol_iaea_Cu_62Zn_protons = interpol_xs_iaea(xs_iaea_protons[2], E_iaea_protons[2])
+    xs_interpol_iaea_Cu_63Zn_protons = interpol_xs_iaea(xs_iaea_protons[3], E_iaea_protons[3])
+    ratios_iaea_Ti_protons = xs_interpol_iaea_Ti_46Sc_protons(E_fox)/xs_interpol_iaea_Ti_48V_protons(E_fox)
+    ratios_iaea_Cu_protons = xs_interpol_iaea_Cu_62Zn_protons(E_fox)/xs_interpol_iaea_Cu_63Zn_protons(E_fox)
 
 
 
@@ -493,11 +493,11 @@ if __name__=='__main__': #______________________________________________________
 
     #Running the functions for the Fox LBNL stack:
     print('_______________________Fox LBNL stack_______________________')
-    ratios_Ti_fox, ratios_unc_Ti_fox, E_Ti_foils_fox, E_Ti_foils_unc_plus_fox, E_Ti_foils_unc_minus_fox = ratios_and_energies(A0_Ti_fox, t_half_Ti, t_irr_fox, A0_unc_Ti_fox, t_half_unc_Ti, t_irr_unc_fox, E_fox, ratios_iaea_Ti_deuterons)
+    ratios_Ti_fox, ratios_unc_Ti_fox, E_Ti_foils_fox, E_Ti_foils_unc_plus_fox, E_Ti_foils_unc_minus_fox = ratios_and_energies(A0_Ti_fox, t_half_Ti, t_irr_fox, A0_unc_Ti_fox, t_half_unc_Ti, t_irr_unc_fox, E_fox, ratios_iaea_Ti_protons)
 
-    ratios_Cu_fox, ratios_unc_Cu_fox, E_Cu_foils_fox, E_Cu_foils_unc_plus_fox, E_Cu_foils_unc_minus_fox = ratios_and_energies(A0_Cu_fox, t_half_Cu, t_irr_fox, A0_unc_Cu_fox, t_half_unc_Cu, t_irr_unc_fox, E_fox, ratios_iaea_Cu_deuterons)
+    ratios_Cu_fox, ratios_unc_Cu_fox, E_Cu_foils_fox, E_Cu_foils_unc_plus_fox, E_Cu_foils_unc_minus_fox = ratios_and_energies(A0_Cu_fox, t_half_Cu, t_irr_fox, A0_unc_Cu_fox, t_half_unc_Cu, t_irr_unc_fox, E_fox, ratios_iaea_Cu_protons)
 
-    print_and_plot_energies_and_ratios(ratios_iaea_Ti_deuterons, ratios_iaea_Cu_deuterons, E_fox, E_Ti_foils_paper_fox, E_Ti_foils_unc_paper_fox, E_Cu_foils_paper_fox, E_Cu_foils_unc_paper_fox, ratios_Ti_fox, ratios_unc_Ti_fox, E_Ti_foils_fox, E_Ti_foils_unc_plus_fox, E_Ti_foils_unc_minus_fox, ratios_Cu_fox, ratios_unc_Cu_fox, E_Cu_foils_fox, E_Cu_foils_unc_plus_fox, E_Cu_foils_unc_minus_fox, colors, 'Fox LBNL')
+    print_and_plot_energies_and_ratios(ratios_iaea_Ti_protons, ratios_iaea_Cu_protons, E_fox, E_Ti_foils_paper_fox, E_Ti_foils_unc_paper_fox, E_Cu_foils_paper_fox, E_Cu_foils_unc_paper_fox, ratios_Ti_fox, ratios_unc_Ti_fox, E_Ti_foils_fox, E_Ti_foils_unc_plus_fox, E_Ti_foils_unc_minus_fox, ratios_Cu_fox, ratios_unc_Cu_fox, E_Cu_foils_fox, E_Cu_foils_unc_plus_fox, E_Cu_foils_unc_minus_fox, colors, 'Fox LBNL')
 
 
 
